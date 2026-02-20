@@ -24,7 +24,6 @@ drawGame();
 // Generate food at random position
 function generateFood() {
     food = { x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount) };
-
     for (let segment of snake) {
         if (segment.x === food.x && segment.y === food.y) {
             generateFood();
@@ -56,11 +55,31 @@ function drawSnake() {
     ctx.fillRect(snake[0].x * gridSize, snake[0].y * gridSize, gridSize - 2, gridSize - 2);
 }
 
-// Draw food
+// Draw Google-style apple
 function drawFood() {
-    ctx.fillStyle = '#ff6b6b';
+    const centerX = food.x * gridSize + gridSize / 2;
+    const centerY = food.y * gridSize + gridSize / 2;
+    const radius = gridSize / 2 - 2;
+
+    // Red apple body
+    ctx.fillStyle = '#ff3b30';
     ctx.beginPath();
-    ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, gridSize / 2 - 2, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Green leaf
+    ctx.fillStyle = '#34c759';
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - radius);
+    ctx.lineTo(centerX - radius / 3, centerY - radius - radius / 3);
+    ctx.lineTo(centerX + radius / 3, centerY - radius - radius / 3);
+    ctx.closePath();
+    ctx.fill();
+
+    // Highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.beginPath();
+    ctx.arc(centerX - radius / 3, centerY - radius / 3, radius / 4, 0, 2 * Math.PI);
     ctx.fill();
 }
 
