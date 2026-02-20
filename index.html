@@ -8,19 +8,24 @@
 </head>
 <body>
     <h1>Snake Game</h1>
+
+    <!-- Canvas for the game -->
     <canvas id="gameCanvas" width="400" height="400"></canvas>
 
+    <!-- Score display -->
     <div id="scoreDiv">
         Score: <span id="score">0</span>
         High Score: <span id="highScore">0</span>
     </div>
 
+    <!-- Game Over overlay -->
     <div id="gameOver" class="hidden">
         <h2>Game Over!</h2>
-        <p>Final Score: <span id="finalScore"></span></p>
+        <p>Final Score: <span id="finalScore">0</span></p>
         <button id="restartBtn">Play Again</button>
     </div>
 
+    <!-- Link to the fixed JS -->
     <script src="script.js"></script>
 </body>
 </html>
