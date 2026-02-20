@@ -33,12 +33,20 @@ function generateFood() {
     }
 }
 
-// Draw functions
+// Draw checkerboard grass
 function clearCanvas() {
-    ctx.fillStyle = '#90ee90';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const lightGreen = '#90ee90';
+    const darkGreen = '#76c776';
+
+    for (let x = 0; x < tileCount; x++) {
+        for (let y = 0; y < tileCount; y++) {
+            ctx.fillStyle = (x + y) % 2 === 0 ? lightGreen : darkGreen;
+            ctx.fillRect(x * gridSize, y * gridSize, gridSize, gridSize);
+        }
+    }
 }
 
+// Draw snake
 function drawSnake() {
     ctx.fillStyle = '#4ecdc4';
     for (let segment of snake) {
@@ -48,6 +56,7 @@ function drawSnake() {
     ctx.fillRect(snake[0].x * gridSize, snake[0].y * gridSize, gridSize - 2, gridSize - 2);
 }
 
+// Draw food
 function drawFood() {
     ctx.fillStyle = '#ff6b6b';
     ctx.beginPath();
@@ -55,10 +64,12 @@ function drawFood() {
     ctx.fill();
 }
 
+// Draw score
 function drawScore() {
     document.getElementById('score').textContent = score;
 }
 
+// Draw everything
 function drawGame() {
     clearCanvas();
     drawSnake();
@@ -66,7 +77,7 @@ function drawGame() {
     drawScore();
 }
 
-// Game logic
+// Move snake
 function moveSnake() {
     if (!gameRunning || gameOverActive) return;
 
@@ -100,6 +111,7 @@ function moveSnake() {
     }
 }
 
+// Game over
 function gameOver() {
     gameRunning = false;
     gameOverActive = true;
@@ -118,7 +130,7 @@ function gameOver() {
     }
 }
 
-// Reset and start functions
+// Reset and start
 function resetGame() {
     snake = [{x: 10, y: 10}];
     dx = 0;
@@ -158,7 +170,7 @@ function startGame() {
 
 // Keyboard controls
 document.addEventListener('keydown', (e) => {
-    if (gameOverActive) return; // BLOCK input during Game Over
+    if (gameOverActive) return;
     if (!gameRunning && e.key.startsWith('Arrow')) startGame();
     if (!gameRunning) return;
 
