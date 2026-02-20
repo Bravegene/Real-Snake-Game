@@ -11,7 +11,7 @@ const minSpeed = 70;
 const speedIncrease = 5;
 let lastTime = 0;
 
-// Web Audio
+// Web Audio for apple and crash
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playEatSound() {
@@ -67,7 +67,7 @@ function generateFood() {
     };
 }
 
-// Draw board (grass tiles)
+// Draw grass tiles
 function drawBoard() {
     for (let x = 0; x < tileCount; x++) {
         for (let y = 0; y < tileCount; y++) {
@@ -77,27 +77,38 @@ function drawBoard() {
     }
 }
 
-// Draw snake with eyes and rounded body
+// Draw snake with eyes and rounded body (works everywhere)
 function drawSnake() {
     snake.forEach((segment, i) => {
         const x = segment.x * gridSize;
         const y = segment.y * gridSize;
         ctx.fillStyle = i === 0 ? '#45b7b8' : '#4ecdc4';
+
+        const radius = gridSize / 2;
         ctx.beginPath();
-        ctx.roundRect(x + 1, y + 1, gridSize - 2, gridSize - 2, gridSize/2);
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + gridSize - radius, y);
+        ctx.quadraticCurveTo(x + gridSize, y, x + gridSize, y + radius);
+        ctx.lineTo(x + gridSize, y + gridSize - radius);
+        ctx.quadraticCurveTo(x + gridSize, y + gridSize, x + gridSize - radius, y + gridSize);
+        ctx.lineTo(x + radius, y + gridSize);
+        ctx.quadraticCurveTo(x, y + gridSize, x, y + gridSize - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
         ctx.fill();
 
+        // Eyes on head
         if (i === 0) {
             ctx.fillStyle = "white";
             ctx.beginPath();
-            ctx.arc(x + 8 + dx*4, y + 8 + dy*4, 3, 0, Math.PI*2);
-            ctx.arc(x + 12 + dx*4, y + 8 + dy*4, 3, 0, Math.PI*2);
+            ctx.arc(x + 6 + dx*4, y + 8 + dy*4, 2.5, 0, Math.PI*2);
+            ctx.arc(x + 14 + dx*4, y + 8 + dy*4, 2.5, 0, Math.PI*2);
             ctx.fill();
         }
     });
 }
 
-// Draw food with apple style
+// Draw apple
 function drawFood() {
     const cx = food.x * gridSize + gridSize/2;
     const cy = food.y * gridSize + gridSize/2;
@@ -108,6 +119,7 @@ function drawFood() {
     ctx.arc(cx, cy, r, 0, Math.PI*2);
     ctx.fill();
 
+    // Leaf
     ctx.fillStyle = '#34c759';
     ctx.beginPath();
     ctx.moveTo(cx, cy - r);
@@ -115,6 +127,7 @@ function drawFood() {
     ctx.lineTo(cx + r*0.4, cy - r*1.2);
     ctx.fill();
 
+    // Shine
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.beginPath();
     ctx.arc(cx - r/2, cy - r/2, r/2.5, 0, Math.PI*2);
@@ -125,7 +138,6 @@ function drawFood() {
 function moveSnake() {
     const head = {x: snake[0].x + dx, y: snake[0].y + dy};
 
-    // Collision detection
     if (
         head.x < 0 || head.x >= tileCount ||
         head.y < 0 || head.y >= tileCount ||
@@ -143,11 +155,15 @@ function moveSnake() {
 
     snake.unshift(head);
 
-    // Eating food
     if (head.x === food.x && head.y === food.y) {
         score += 10;
         document.getElementById("score").textContent = score;
         playEatSound();
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('snakeHighScore', highScore);
+            document.getElementById("highScore").textContent = highScore;
+        }
         if (gameSpeed > minSpeed) gameSpeed -= speedIncrease;
         generateFood();
     } else {
@@ -155,19 +171,16 @@ function moveSnake() {
     }
 }
 
-// Game loop with smooth animation
+// Main game loop
 function gameLoop(timestamp) {
     if (!gameRunning) return;
-
     if (timestamp - lastTime > gameSpeed) {
         moveSnake();
         lastTime = timestamp;
     }
-
     drawBoard();
     drawFood();
     drawSnake();
-
     requestAnimationFrame(gameLoop);
 }
 
