@@ -2,30 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake Game</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Snake Game</h1>
 
-    <!-- Canvas for the game -->
+<div class="game-container">
+
+    <div class="scoreboard">
+        <span>Score: <span id="score">0</span></span>
+        <span>High Score: <span id="highScore">0</span></span>
+    </div>
+
     <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-    <!-- Score display -->
-    <div id="scoreDiv">
-        Score: <span id="score">0</span>
-        High Score: <span id="highScore">0</span>
+    <!-- Start Menu -->
+    <div id="startMenu" class="menu">
+        <h1>Snake Game</h1>
+        <button id="startBtn">Start Game</button>
     </div>
 
-    <!-- Game Over overlay -->
-    <div id="gameOver" class="hidden">
-        <h2>Game Over!</h2>
-        <p>Final Score: <span id="finalScore">0</span></p>
-        <button id="restartBtn">Play Again</button>
-    </div>
+</div>
 
-    <!-- Link to the fixed JS -->
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
