@@ -21,8 +21,10 @@ document.getElementById('highScore').textContent = highScore;
 generateFood();
 drawGame();
 
+// Generate food at random position
 function generateFood() {
     food = { x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount) };
+
     for (let segment of snake) {
         if (segment.x === food.x && segment.y === food.y) {
             generateFood();
@@ -31,6 +33,7 @@ function generateFood() {
     }
 }
 
+// Draw functions
 function clearCanvas() {
     ctx.fillStyle = '#90ee90';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -41,7 +44,7 @@ function drawSnake() {
     for (let segment of snake) {
         ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
     }
-    ctx.fillStyle = '#45b7b8';
+    ctx.fillStyle = '#45b7b8'; // head
     ctx.fillRect(snake[0].x * gridSize, snake[0].y * gridSize, gridSize - 2, gridSize - 2);
 }
 
@@ -63,14 +66,22 @@ function drawGame() {
     drawScore();
 }
 
+// Game logic
 function moveSnake() {
     if (!gameRunning || gameOverActive) return;
 
     const head = {x: snake[0].x + dx, y: snake[0].y + dy};
 
-    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) { gameOver(); return; }
+    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+        gameOver();
+        return;
+    }
+
     for (let segment of snake) {
-        if (head.x === segment.x && head.y === segment.y) { gameOver(); return; }
+        if (head.x === segment.x && head.y === segment.y) {
+            gameOver();
+            return;
+        }
     }
 
     snake.unshift(head);
@@ -78,20 +89,27 @@ function moveSnake() {
     if (head.x === food.x && head.y === food.y) {
         score += 10;
         generateFood();
+
         if (score > highScore) {
             highScore = score;
             localStorage.setItem('snakeHighScore', highScore);
             document.getElementById('highScore').textContent = highScore;
         }
-    } else { snake.pop(); }
+    } else {
+        snake.pop();
+    }
 }
 
 function gameOver() {
     gameRunning = false;
     gameOverActive = true;
-    dx = 0; dy = 0;
+    dx = 0;
+    dy = 0;
 
-    if (gameLoop) { clearInterval(gameLoop); gameLoop = null; }
+    if (gameLoop) {
+        clearInterval(gameLoop);
+        gameLoop = null;
+    }
 
     const gameOverDiv = document.getElementById('gameOver');
     if (gameOverDiv) {
@@ -100,33 +118,47 @@ function gameOver() {
     }
 }
 
+// Reset and start functions
 function resetGame() {
     snake = [{x: 10, y: 10}];
-    dx = 0; dy = 0;
+    dx = 0;
+    dy = 0;
     score = 0;
     gameOverActive = false;
     gameRunning = false;
-    generateFood();
-    drawScore();
+
     const gameOverDiv = document.getElementById('gameOver');
     if (gameOverDiv) gameOverDiv.classList.add('hidden');
-    if (gameLoop) { clearInterval(gameLoop); gameLoop = null; }
+
+    if (gameLoop) {
+        clearInterval(gameLoop);
+        gameLoop = null;
+    }
+
+    generateFood();
+    drawScore();
     drawGame();
 }
 
 function startGame() {
-    if (!gameRunning) {
-        gameRunning = true;
-        gameOverActive = false;
-        gameLoop = setInterval(() => {
-            moveSnake();
-            drawGame();
-        }, 100);
+    if (gameRunning) return;
+    gameRunning = true;
+    gameOverActive = false;
+
+    if (dx === 0 && dy === 0) {
+        dx = 1;
+        dy = 0;
     }
+
+    gameLoop = setInterval(() => {
+        moveSnake();
+        drawGame();
+    }, 100);
 }
 
 // Keyboard controls
 document.addEventListener('keydown', (e) => {
+    if (gameOverActive) return; // BLOCK input during Game Over
     if (!gameRunning && e.key.startsWith('Arrow')) startGame();
     if (!gameRunning) return;
 
@@ -141,21 +173,20 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Restart button
-const restartBtn = document.getElementById('restartBtn');
-if (restartBtn) {
-    restartBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        resetGame();
-        startGame();
-    });
-}
-
 // Touch controls
 let touchStartX = 0;
 let touchStartY = 0;
-canvas.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
+canvas.addEventListener('touchstart', (e) => { 
+    e.preventDefault();
+    if (gameOverActive) return; 
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+});
+
 canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    if (gameOverActive || !touchStartX || !touchStartY) return;
+
     const diffX = touchStartX - e.changedTouches[0].clientX;
     const diffY = touchStartY - e.changedTouches[0].clientY;
 
@@ -169,8 +200,19 @@ canvas.addEventListener('touchend', (e) => {
 
     if (!gameRunning) startGame();
 
-    touchStartX = 0; touchStartY = 0;
+    touchStartX = 0;
+    touchStartY = 0;
 });
+
+// Restart button
+const restartBtn = document.getElementById('restartBtn');
+if (restartBtn) {
+    restartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        resetGame();
+        startGame();
+    });
+}
 
 // Initial draw
 drawGame();
