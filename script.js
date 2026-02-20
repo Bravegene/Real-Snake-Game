@@ -55,7 +55,7 @@ function drawSnake() {
     ctx.fillRect(snake[0].x * gridSize, snake[0].y * gridSize, gridSize - 2, gridSize - 2);
 }
 
-// Draw Google-style apple
+// Draw Google-style visible apple
 function drawFood() {
     const cx = food.x * gridSize + gridSize / 2;
     const cy = food.y * gridSize + gridSize / 2;
@@ -67,19 +67,19 @@ function drawFood() {
     ctx.arc(cx, cy, r, 0, 2 * Math.PI);
     ctx.fill();
 
-    // Green leaf
+    // Bigger leaf (visible)
     ctx.fillStyle = '#34c759';
     ctx.beginPath();
     ctx.moveTo(cx, cy - r + 1);
-    ctx.lineTo(cx - r / 2, cy - r - r / 3);
-    ctx.lineTo(cx + r / 4, cy - r - r / 4);
+    ctx.lineTo(cx - r * 0.8, cy - r - r * 0.6);
+    ctx.lineTo(cx + r * 0.4, cy - r - r * 0.4);
     ctx.closePath();
     ctx.fill();
 
-    // Highlight (shiny effect)
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    // Bigger highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.beginPath();
-    ctx.arc(cx - r / 3, cy - r / 3, r / 4, 0, 2 * Math.PI);
+    ctx.arc(cx - r / 2, cy - r / 2, r / 2.5, 0, 2 * Math.PI);
     ctx.fill();
 }
 
