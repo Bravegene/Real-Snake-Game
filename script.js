@@ -57,29 +57,29 @@ function drawSnake() {
 
 // Draw Google-style apple
 function drawFood() {
-    const centerX = food.x * gridSize + gridSize / 2;
-    const centerY = food.y * gridSize + gridSize / 2;
-    const radius = gridSize / 2 - 2;
+    const cx = food.x * gridSize + gridSize / 2;
+    const cy = food.y * gridSize + gridSize / 2;
+    const r = gridSize / 2 - 2;
 
-    // Red apple body
+    // Apple body
     ctx.fillStyle = '#ff3b30';
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
     ctx.fill();
 
     // Green leaf
     ctx.fillStyle = '#34c759';
     ctx.beginPath();
-    ctx.moveTo(centerX, centerY - radius);
-    ctx.lineTo(centerX - radius / 3, centerY - radius - radius / 3);
-    ctx.lineTo(centerX + radius / 3, centerY - radius - radius / 3);
+    ctx.moveTo(cx, cy - r + 1);
+    ctx.lineTo(cx - r / 2, cy - r - r / 3);
+    ctx.lineTo(cx + r / 4, cy - r - r / 4);
     ctx.closePath();
     ctx.fill();
 
-    // Highlight
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    // Highlight (shiny effect)
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.beginPath();
-    ctx.arc(centerX - radius / 3, centerY - radius / 3, radius / 4, 0, 2 * Math.PI);
+    ctx.arc(cx - r / 3, cy - r / 3, r / 4, 0, 2 * Math.PI);
     ctx.fill();
 }
 
