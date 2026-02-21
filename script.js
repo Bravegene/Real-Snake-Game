@@ -4,17 +4,35 @@ const ctx = canvas.getContext("2d");
 const gridSize = 20;
 const tileCount = canvas.width / gridSize;
 
-let snake = [{ x: 10, y: 10 }];
-let food = {};
-let dx = 1;
-let dy = 0;
-let score = 0;
-let highScore = localStorage.getItem("snakeHighScore") || 0;
+let snake;
+let food;
+let dx;
+let dy;
+let score;
+let highScore;
 let gameInterval;
 let gameSpeed = 130;
 let gameRunning = true;
 
+// Load high score
+highScore = localStorage.getItem("snakeHighScore") || 0;
 document.getElementById("highScore").textContent = highScore;
+
+function startGame() {
+    snake = [{ x: 10, y: 10 }];
+    dx = 1;
+    dy = 0;
+    score = 0;
+    gameRunning = true;
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("gameOver").classList.add("hidden");
+
+    generateFood();
+
+    clearInterval(gameInterval);
+    gameInterval = setInterval(gameLoop, gameSpeed);
+}
 
 function generateFood() {
     food = {
@@ -56,7 +74,6 @@ function drawFood() {
 function moveSnake() {
     const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-    // Collision
     if (
         head.x < 0 ||
         head.x >= tileCount ||
@@ -103,42 +120,24 @@ function endGame() {
     document.getElementById("gameOver").classList.remove("hidden");
 }
 
-function resetGame() {
-    snake = [{ x: 10, y: 10 }];
-    dx = 1;
-    dy = 0;
-    score = 0;
-    document.getElementById("score").textContent = score;
-    document.getElementById("gameOver").classList.add("hidden");
-    gameRunning = true;
-
-    generateFood();
-    gameInterval = setInterval(gameLoop, gameSpeed);
-}
-
 document.addEventListener("keydown", e => {
     if (!gameRunning) return;
 
     if (e.key === "ArrowUp" && dy !== 1) {
-        dx = 0;
-        dy = -1;
+        dx = 0; dy = -1;
     }
     if (e.key === "ArrowDown" && dy !== -1) {
-        dx = 0;
-        dy = 1;
+        dx = 0; dy = 1;
     }
     if (e.key === "ArrowLeft" && dx !== 1) {
-        dx = -1;
-        dy = 0;
+        dx = -1; dy = 0;
     }
     if (e.key === "ArrowRight" && dx !== -1) {
-        dx = 1;
-        dy = 0;
+        dx = 1; dy = 0;
     }
 });
 
-document.getElementById("restartBtn").addEventListener("click", resetGame);
+document.getElementById("restartBtn").addEventListener("click", startGame);
 
-// Start game immediately
-generateFood();
-gameInterval = setInterval(gameLoop, gameSpeed);
+// Start immediately
+startGame();
