@@ -6,7 +6,7 @@ const gridSize = 20;
 const tileCount = canvas.width / gridSize;
 
 // Game state
-let snake = [{ x: 10, y: 10 }];
+let snake = [{x: 10, y: 10}];
 let food = {};
 let dx = 0;
 let dy = 0;
@@ -21,16 +21,9 @@ document.getElementById('highScore').textContent = highScore;
 generateFood();
 drawGame();
 
-
-// =======================
-// FOOD
-// =======================
-
+// Generate food at random position
 function generateFood() {
-    food = {
-        x: Math.floor(Math.random() * tileCount),
-        y: Math.floor(Math.random() * tileCount)
-    };
+    food = { x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount) };
 
     for (let segment of snake) {
         if (segment.x === food.x && segment.y === food.y) {
@@ -40,57 +33,25 @@ function generateFood() {
     }
 }
 
-
-// =======================
-// DRAWING
-// =======================
-
-// 🌱 Draw tiled grass board
+// Draw functions
 function clearCanvas() {
-    for (let x = 0; x < tileCount; x++) {
-        for (let y = 0; y < tileCount; y++) {
-
-            if ((x + y) % 2 === 0) {
-                ctx.fillStyle = '#90ee90'; // light green
-            } else {
-                ctx.fillStyle = '#76c776'; // darker green
-            }
-
-            ctx.fillRect(
-                x * gridSize,
-                y * gridSize,
-                gridSize,
-                gridSize
-            );
-        }
-    }
+    ctx.fillStyle = '#90ee90';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawSnake() {
-    for (let i = 0; i < snake.length; i++) {
-        const segment = snake[i];
-
-        ctx.fillStyle = i === 0 ? '#45b7b8' : '#4ecdc4';
-
-        ctx.fillRect(
-            segment.x * gridSize + 1,
-            segment.y * gridSize + 1,
-            gridSize - 2,
-            gridSize - 2
-        );
+    ctx.fillStyle = '#4ecdc4';
+    for (let segment of snake) {
+        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
     }
+    ctx.fillStyle = '#45b7b8'; // head
+    ctx.fillRect(snake[0].x * gridSize, snake[0].y * gridSize, gridSize - 2, gridSize - 2);
 }
 
 function drawFood() {
     ctx.fillStyle = '#ff6b6b';
     ctx.beginPath();
-    ctx.arc(
-        food.x * gridSize + gridSize / 2,
-        food.y * gridSize + gridSize / 2,
-        gridSize / 2 - 3,
-        0,
-        2 * Math.PI
-    );
+    ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, gridSize / 2 - 2, 0, 2 * Math.PI);
     ctx.fill();
 }
 
@@ -105,29 +66,17 @@ function drawGame() {
     drawScore();
 }
 
-
-// =======================
-// GAME LOGIC
-// =======================
-
+// Game logic
 function moveSnake() {
     if (!gameRunning || gameOverActive) return;
 
-    const head = {
-        x: snake[0].x + dx,
-        y: snake[0].y + dy
-    };
+    const head = {x: snake[0].x + dx, y: snake[0].y + dy};
 
-    // Wall collision
-    if (
-        head.x < 0 || head.x >= tileCount ||
-        head.y < 0 || head.y >= tileCount
-    ) {
+    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
         gameOver();
         return;
     }
 
-    // Self collision
     for (let segment of snake) {
         if (head.x === segment.x && head.y === segment.y) {
             gameOver();
@@ -137,7 +86,6 @@ function moveSnake() {
 
     snake.unshift(head);
 
-    // Eat food
     if (head.x === food.x && head.y === food.y) {
         score += 10;
         generateFood();
@@ -147,7 +95,6 @@ function moveSnake() {
             localStorage.setItem('snakeHighScore', highScore);
             document.getElementById('highScore').textContent = highScore;
         }
-
     } else {
         snake.pop();
     }
@@ -159,8 +106,10 @@ function gameOver() {
     dx = 0;
     dy = 0;
 
-    clearInterval(gameLoop);
-    gameLoop = null;
+    if (gameLoop) {
+        clearInterval(gameLoop);
+        gameLoop = null;
+    }
 
     const gameOverDiv = document.getElementById('gameOver');
     if (gameOverDiv) {
@@ -169,13 +118,9 @@ function gameOver() {
     }
 }
 
-
-// =======================
-// START / RESET
-// =======================
-
+// Reset and start functions
 function resetGame() {
-    snake = [{ x: 10, y: 10 }];
+    snake = [{x: 10, y: 10}];
     dx = 0;
     dy = 0;
     score = 0;
@@ -185,16 +130,18 @@ function resetGame() {
     const gameOverDiv = document.getElementById('gameOver');
     if (gameOverDiv) gameOverDiv.classList.add('hidden');
 
-    clearInterval(gameLoop);
-    gameLoop = null;
+    if (gameLoop) {
+        clearInterval(gameLoop);
+        gameLoop = null;
+    }
 
     generateFood();
+    drawScore();
     drawGame();
 }
 
 function startGame() {
     if (gameRunning) return;
-
     gameRunning = true;
     gameOverActive = false;
 
@@ -209,29 +156,16 @@ function startGame() {
     }, 100);
 }
 
-
-// =======================
-// CONTROLS
-// =======================
-
+// Keyboard controls
 document.addEventListener('keydown', (e) => {
-
-    if (gameOverActive) return;
-
-    if (!gameRunning && e.key.startsWith('Arrow')) {
-        startGame();
-    }
-
+    if (gameOverActive) return; // BLOCK input during Game Over
+    if (!gameRunning && e.key.startsWith('Arrow')) startGame();
     if (!gameRunning) return;
 
-    if (
-        (e.key === 'ArrowLeft' && dx === 1) ||
-        (e.key === 'ArrowRight' && dx === -1) ||
-        (e.key === 'ArrowUp' && dy === 1) ||
-        (e.key === 'ArrowDown' && dy === -1)
-    ) return;
+    if ((e.key === 'ArrowLeft' && dx === 1) || (e.key === 'ArrowRight' && dx === -1) ||
+        (e.key === 'ArrowUp' && dy === 1) || (e.key === 'ArrowDown' && dy === -1)) return;
 
-    switch (e.key) {
+    switch(e.key) {
         case 'ArrowUp': dx = 0; dy = -1; break;
         case 'ArrowDown': dx = 0; dy = 1; break;
         case 'ArrowLeft': dx = -1; dy = 0; break;
@@ -239,25 +173,19 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-
-// =======================
-// TOUCH CONTROLS
-// =======================
-
+// Touch controls
 let touchStartX = 0;
 let touchStartY = 0;
-
-canvas.addEventListener('touchstart', (e) => {
+canvas.addEventListener('touchstart', (e) => { 
     e.preventDefault();
-    if (gameOverActive) return;
-
+    if (gameOverActive) return; 
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
 });
 
 canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
-    if (gameOverActive) return;
+    if (gameOverActive || !touchStartX || !touchStartY) return;
 
     const diffX = touchStartX - e.changedTouches[0].clientX;
     const diffY = touchStartY - e.changedTouches[0].clientY;
@@ -271,13 +199,12 @@ canvas.addEventListener('touchend', (e) => {
     }
 
     if (!gameRunning) startGame();
+
+    touchStartX = 0;
+    touchStartY = 0;
 });
 
-
-// =======================
-// RESTART BUTTON
-// =======================
-
+// Restart button
 const restartBtn = document.getElementById('restartBtn');
 if (restartBtn) {
     restartBtn.addEventListener('click', (e) => {
@@ -286,3 +213,6 @@ if (restartBtn) {
         startGame();
     });
 }
+
+// Initial draw
+drawGame();
